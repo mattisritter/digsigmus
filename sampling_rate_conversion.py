@@ -1,5 +1,6 @@
 from math import pi, ceil
 import numpy as np
+import matplotlib.pyplot as plt
 
 def convert_sampling_rate(fn, ws, ws_new):
     Ts = 2 * pi / ws
@@ -17,12 +18,15 @@ def convert_sampling_rate(fn, ws, ws_new):
 
 # Example usage
 w = 2 * pi # Frequency of the cosine wave
-ws = 20 # Sampling rate of the cosine wave
-ws_new = 40 # New sampling rate
+ws = 2*pi # Sampling rate of the cosine wave
+ws_new = 20 # New sampling rate
 # Generate cosine wave
-fn = [np.cos(w * i / ws) for i in range(-100, 100)]
+fn = [np.cos(w * i / ws) for i in range(-10, 10)]
 # Convert the sampling rate
 fn_new = convert_sampling_rate(fn, ws, ws_new)
-print(fn_new)
+
+# Plot the original and new signals
+plt.plot(fn, label='Original', marker='x')
+plt.show()
 
 
