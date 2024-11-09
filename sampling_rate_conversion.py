@@ -1,32 +1,43 @@
 from math import pi, ceil
 import numpy as np
+from function import Function
 import matplotlib.pyplot as plt
 
-def convert_sampling_rate(fn, ws, ws_new):
-    Ts = 2 * pi / ws
-    Ts_new = 2 * pi / ws_new
-    num_new_samples = ceil(len(fn) * ws_new / ws)
-    fn_new = [0] * num_new_samples
-    
-    for i in range(num_new_samples):
-        n_new = i * Ts_new
-        for j in range(len(fn)):
-            n = j * Ts
-            fn_new[i] += fn[j] * np.sinc((n_new - n) / Ts)
-    
-    return fn_new
+def convert_sampling_rate(f, N, ws_new=None, Ts_new=None):
+    if ws_new is None:
+        ws_new = 2*pi/Ts_new
+    elif Ts_new is None:
+        Ts_new = 2*pi/ws_new
+    else:
+        raise ValueError("Either Ts_new or ws_new must be provided.")
+    #
+    beta = f.ws/ws_new
+    n_new = range(ceil(f.n[0]/beta), ceil(f.n[-1]/beta)+1)
+    f_new = [0]*len(n_new)
+    for l in n_new:
+        n0 = round(l*beta)
+        for n in range(n0-N, n0+N):
+            if n in f.n:
+                f_new[l] += f.f[f.n.index(n)]*np.sinc(n-l*beta)
+    return Function(n_new, Ts=Ts_new, f=f_new)
 
 # Example usage
 w = 2 * pi # Frequency of the cosine wave
-ws = 2*pi # Sampling rate of the cosine wave
-ws_new = 20 # New sampling rate
-# Generate cosine wave
-fn = [np.cos(w * i / ws) for i in range(-10, 10)]
+fcn_handle = lambda t: np.cos(w*t) # Cosine function
+Ts = 0.1 # Sampling rate
+n = range(-100, 101)
+# Create the function object
+f = Function(n, Ts=Ts, function_handle=fcn_handle)
+
 # Convert the sampling rate
-fn_new = convert_sampling_rate(fn, ws, ws_new)
+Ts_new = 0.05 # New sampling rate
+f_new = convert_sampling_rate(f, N=10, Ts_new=Ts_new)
+
 
 # Plot the original and new signals
-plt.plot(fn, label='Original', marker='x')
+plt.plot(f.t, f.f, label='Original', marker='x')
+plt.plot(f_new.t, f_new.f, label='New', marker='o')
+plt.legend()
 plt.show()
 
 
