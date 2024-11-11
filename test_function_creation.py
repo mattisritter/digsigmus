@@ -1,5 +1,7 @@
+from math import pi, ceil
+import numpy as np
+import matplotlib.pyplot as plt
 from function import Function
-from math import pi
 
 def test_direct_creation():
     n = [0, 1, 2, 3]
