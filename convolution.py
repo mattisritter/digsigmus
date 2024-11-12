@@ -1,18 +1,27 @@
 from function import Function
 import numpy as np
 
-def discrete_convolution(f: Function, g: Function) -> Function:
+def convolution_time_domain(f: Function, g: Function) -> Function:
+    """
+    Perform the discrete convolution of two functions in time domain.
+    Parameters:
+        f: Function
+            First function
+        g: Function
+            Second function
+    Return:
+        Function
+            Convolution of the two functions
+    """
     # Determine the length of the output convolution
     len_h = f.len + g.len - 1
-    
     # Initialize the output convolution
     h = [0] * len_h
-    
     # Perform the convolution
     for i in range(f.len):
         for j in range(g.len):
             h[i + j] += f.f[i] * g.f[j]
-    # delete the zeros at the end
+    # Delete the zeros at the end
     while h[-1] == 0:
         h.pop()
     return Function(range(len(h)), Ts=f.Ts, f=h)
@@ -27,7 +36,7 @@ if __name__ == "__main__":
     function2 = Function(n, Ts, f=f2)
     
     # Perform the convolution
-    convolution = discrete_convolution(function1, function2)
+    convolution = convolution_time_domain(function1, function2)
     
     # Print the result
     print(convolution.f)
