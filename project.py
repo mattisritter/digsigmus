@@ -2,6 +2,10 @@ from math import pi, ceil
 import numpy as np
 import matplotlib.pyplot as plt
 from function import Function
+from convolution import convolution_time_domain
+from modulation import modulate, demodulate, quadrature_modulate, quadrature_demodulate
+from low_pass_filter import low_pass_filter
+from add import add
 
 # Define first function
 w = 2 * pi # Frequency of the cosine wave
@@ -24,8 +28,8 @@ plt.show()
 # Lowpass filter the functions
 wc = 4*w # Cut-off frequency
 N = 15 # Filter length
-f1_low_pass = f1.low_pass(wc, N, hamming_window=True)
-f2_low_pass = f2.low_pass(wc, N, hamming_window=True)
+f1_low_pass = low_pass_filter(f1, wc, N)
+f2_low_pass = low_pass_filter(f2, wc, N)
 # Plot
 plt.figure(2)
 plt.plot(f1_low_pass.t, f1_low_pass.f, marker='x')
@@ -33,11 +37,42 @@ plt.plot(f2_low_pass.t, f2_low_pass.f, marker='o')
 plt.title('Low-pass filtered functions')
 plt.show()
 
-# Modulate the functions
+# # Modulate the functions
+# w_mod1 = 5*w
+# w_mod2 = 15*w
+# f1_mod = modulate(f1_low_pass, w_mod1)
+# f2_mod = modulate(f2_low_pass, w_mod2)
+# # Plot
+# plt.figure(3)
+# plt.plot(f1_mod.t, f1_mod.f, marker='x')
+# plt.plot(f2_mod.t, f2_mod.f, marker='o')
+# plt.title('Modulated functions')
+# plt.show()
+# print(f1_mod.len)
+# print(f2_mod.len)
+
+# # Add the modulated functions
+# f_sum = add(f1_mod, f2_mod)
+# # Plot
+# plt.figure(4)
+# plt.plot(f_sum.t, f_sum.f, marker='s', color='tab:green')
+# plt.title('Sum of modulated functions')
+# plt.show()
+# print(f_sum.len)
+
+# # Demodulate the sum
+# f1_demod = demodulate(f_sum, w_mod1)
+# f2_demod = demodulate(f_sum, w_mod2)
+# # Plot
+# plt.figure(5)
+# plt.plot(f1_demod.t, f1_demod.f, marker='x')
+# plt.plot(f2_demod.t, f2_demod.f, marker='o')
+# plt.title('Demodulated functions')
+# plt.show()
+
+# Modulate using quadrature modulation
 w_mod1 = 5*w
-w_mod2 = 15*w
-f1_mod = f1_low_pass.modulate(w_mod1)
-f2_mod = f2_low_pass.modulate(w_mod2)
+f1_mod, f2_mod = quadrature_modulate(f1_low_pass, f2_low_pass, w_mod1)
 # Plot
 plt.figure(3)
 plt.plot(f1_mod.t, f1_mod.f, marker='x')
@@ -46,16 +81,15 @@ plt.title('Modulated functions')
 plt.show()
 
 # Add the modulated functions
-f_sum = f1_mod + f2_mod
+f_sum = add(f1_mod, f2_mod)
 # Plot
 plt.figure(4)
 plt.plot(f_sum.t, f_sum.f, marker='s', color='tab:green')
 plt.title('Sum of modulated functions')
 plt.show()
 
-# Demodulate the sum
-f1_demod = f_sum.demodulate(w_mod1)
-f2_demod = f_sum.demodulate(w_mod2)
+# Demodulate using quadrature demodulation
+f1_demod, f2_demod = quadrature_demodulate(f_sum, f_sum, w_mod1)
 # Plot
 plt.figure(5)
 plt.plot(f1_demod.t, f1_demod.f, marker='x')
@@ -64,8 +98,8 @@ plt.title('Demodulated functions')
 plt.show()
 
 # Lowpass filter the demodulated functions
-f1_demod_low_pass = f1_demod.low_pass(wc, N, hamming_window=True)
-f2_demod_low_pass = f2_demod.low_pass(wc, N, hamming_window=True)
+f1_demod_low_pass = low_pass_filter(f1_demod, wc, N)
+f2_demod_low_pass = low_pass_filter(f2_demod, wc, N)
 # Plot
 plt.figure(6)
 plt.plot(f1_demod_low_pass.t, f1_demod_low_pass.f, marker='x')
