@@ -91,5 +91,3 @@ class Function:
     
     def demodulate(self, w):
         return Function(self.n, Ts=self.Ts, f=self.f*2*np.cos(w*np.array(self.t)))
-
-
