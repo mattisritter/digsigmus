@@ -47,9 +47,22 @@ def quadrature_modulate(f: Function, g: Function, w_mod):
         Function, Function
             Modulated functions
     """
-    f_mod = [f.f[i] * np.cos(w_mod * f.t[i]) for i in range(f.len)]
-    g_mod = [g.f[i] * np.sin(w_mod * g.t[i]) for i in range(g.len)]
-    return Function(f.n, Ts=f.Ts, f=f_mod), Function(g.n, Ts=g.Ts, f=g_mod)
+    # Modulate f and g
+    f_mod = [f.f[i] * np.cos(w_mod * f.t[i]) for i in range(len(f.f))]
+    g_mod = [g.f[i] * np.sin(w_mod * g.t[i]) for i in range(len(g.f))]
+    
+    # Ensure the lengths match the shorter time series
+    min_len = min(len(f.t), len(f_mod))
+    f_mod = f_mod[:min_len]
+    f_times = f.t[:min_len]
+
+    min_len = min(len(g.t), len(g_mod))
+    g_mod = g_mod[:min_len]
+    g_times = g.t[:min_len]
+    
+    # Return as Function objects
+    return Function(f.n[:len(f_mod)], Ts=f.Ts, f=f_mod, function_handle=None), \
+           Function(g.n[:len(g_mod)], Ts=g.Ts, f=g_mod, function_handle=None)
 
 def quadrature_demodulate(f, g, w_mod):
     """
