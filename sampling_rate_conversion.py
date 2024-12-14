@@ -17,7 +17,7 @@ def convert_sampling_rate(f, N, ws_new=None, Ts_new=None):
     f_new = [0]*len(n_new)
     for l in n_new:
         n0 = ceil(l*beta)
-        for n in range(n0-N, n0+N):
+        for n in range(n0-N, n0+N+1):
             if n in f.n:
                 f_new[l] += f.f[f.n.index(n)]*np.sinc(n-l*beta)
     return Function(n_new, Ts=Ts_new, f=f_new)

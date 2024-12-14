@@ -3,8 +3,9 @@ from function import Function
 import matplotlib.pyplot as plt
 from math import pi, ceil, floor
 from convolution import convolution_time_domain
+from fast_convolution import fast_convolution
 
-def low_pass_filter(f: Function, wc, N, hamming_window=True) -> Function:
+def low_pass_filter(f: Function, wc, N, hamming_window=True, use_fast_convolution=True) -> Function:
     """
     Low pass filter a function.
     Parameters:
@@ -16,12 +17,17 @@ def low_pass_filter(f: Function, wc, N, hamming_window=True) -> Function:
             Filter length
         hamming_window=True: bool
             Use Hamming window
+        use_fast_convolution=True: bool
+            Use fast convolution
     Return:
         Function
             Low pass filtered function
     """
     g = _calculate_filter(f, wc, N, hamming_window)
-    return convolution_time_domain(f, g)
+    if use_fast_convolution:
+        return fast_convolution(f, g, 1024)
+    else:
+        return convolution_time_domain(f, g)
 
 def _calculate_filter(f: Function, wc, N, hamming_window=True) -> Function:
     """
