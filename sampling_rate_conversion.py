@@ -22,23 +22,24 @@ def convert_sampling_rate(f, N, ws_new=None, Ts_new=None):
                 f_new[l] += f.f[f.n.index(n)]*np.sinc(n-l*beta)
     return Function(n_new, Ts=Ts_new, f=f_new)
 
-# Example usage
-w = 2 * pi # Frequency of the cosine wave
-fcn_handle = lambda t: np.cos(w*t) # Cosine function
-Ts = 0.1 # Sampling rate
-n = range(0, 41)
-# Create the function object
-f = Function(n, Ts=Ts, function_handle=fcn_handle)
+if __name__ == "__main__":
+    # Example usage
+    w = 2 * pi # Frequency of the cosine wave
+    fcn_handle = lambda t: np.cos(w*t) # Cosine function
+    Ts = 0.1 # Sampling rate
+    n = range(0, 41)
+    # Create the function object
+    f = Function(n, Ts=Ts, function_handle=fcn_handle)
 
-# Convert the sampling rate
-Ts_new = 0.04 # New sampling rate
-f_new = convert_sampling_rate(f, N=5, Ts_new=Ts_new)
+    # Convert the sampling rate
+    Ts_new = 0.04 # New sampling rate
+    f_new = convert_sampling_rate(f, N=5, Ts_new=Ts_new)
 
 
-# Plot the original and new signals
-plt.plot(f.t, f.f, label='Original', marker='x')
-plt.plot(f_new.t, f_new.f, label='New', marker='o')
-plt.legend()
-plt.show()
+    # Plot the original and new signals
+    plt.plot(f.t, f.f, label='Original', marker='x')
+    plt.plot(f_new.t, f_new.f, label='New', marker='o')
+    plt.legend()
+    plt.show()
 
 
