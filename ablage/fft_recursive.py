@@ -19,13 +19,10 @@ def fft_recursive(f: Function) -> Function:
     even = fft_recursive(Function(f.n[0::2], Ts=f.Ts, f=f.f[0::2]))
     odd = fft_recursive(Function(f.n[1::2], Ts=f.Ts, f=f.f[1::2]))
 
-    factor = np.exp(-2j * np.pi * np.arange(N) / N)
-    f_even = even.f
-    f_odd = odd.f
-
+    exp_factors = np.exp(-2j * np.pi * np.arange(N) / N)
     combined = np.concatenate([
-        f_even + factor[:N // 2] * f_odd,
-        f_even - factor[:N // 2] * f_odd
+        even.f + exp_factors[:N // 2] * odd.f,
+        even.f - exp_factors[:N // 2] * odd.f
     ])
 
     return Function(f.n, Ts=f.Ts, f=combined)

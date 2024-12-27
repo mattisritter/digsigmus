@@ -33,7 +33,7 @@ def fft_iterative(f_values):
                 f_values[i + j] = f_values[i + j] + temp
         step *= 2
 
-    return f_values
+    return f_values / N
 
 if __name__ == "__main__":
     # Example usage

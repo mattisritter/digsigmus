@@ -12,13 +12,36 @@ def dft_matrix_multiplication(f: Function) -> Function:
             Transformed function in the frequency domain.
     """
     N = f.len  # Number of samples
-    # Create the DFT matrix
-    dft_matrix = np.exp(-2j * np.pi * np.outer(np.arange(N), np.arange(N)) / N)
-    # Perform the matrix multiplication
-    F = np.dot(dft_matrix, f.f)
-    # Return the frequency domain representation as a new Function object
-    freq_sampling = np.fft.fftfreq(N, d=f.Ts)  # Frequency axis
+    # Use precomputed B* matrix for efficiency
+    B_star = calculate_B_star(N)
+    F = np.dot(B_star, f.f) / N
+    freq_sampling = np.fft.fftfreq(N, d=f.Ts)
     return Function(freq_sampling, Ts=f.Ts, f=F)
+
+# Helper Functions
+def calculate_B(n: int) -> np.ndarray:
+    """
+    Calculate the B matrix for the IDFT.
+    Parameters:
+        n: int
+            Size of the matrix.
+    Returns:
+        np.ndarray
+            B matrix.
+    """
+    return np.array([[np.exp(2j * np.pi * k * l / n) for l in range(n)] for k in range(n)], dtype=np.complex128)
+
+def calculate_B_star(n: int) -> np.ndarray:
+    """
+    Calculate the B* matrix for the DFT.
+    Parameters:
+        n: int
+            Size of the matrix.
+    Returns:
+        np.ndarray
+            B* matrix.
+    """
+    return calculate_B(n).conj().T
 
 if __name__ == "__main__":
     # Example usage
