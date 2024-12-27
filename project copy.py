@@ -9,7 +9,7 @@ from fft import fft_iterative
 from add import add
 
 # Define the functions
-samples = 64
+samples = 32
 t = np.linspace(0, 2*pi, samples, endpoint=False)
 fcn = 3 + np.cos(t+1) + 2*np.cos(3*t+2) - 5*np.cos(4*t-1) + np.cos(13*t)
 f1 = Function(range(samples), Ts=1, f=fcn)
@@ -22,14 +22,14 @@ N = 15 # Filter length
 f1_low_pass = low_pass_filter(f1, wc, N)
 f2_low_pass = low_pass_filter(f2, wc, N)
 # Increase the sampling rate
-factor = 1 # remove when sampling rate conversion is implemented
-# factor = 2
-# N = N*factor
-# samples = samples*factor
-# f1_low_pass = convert_sampling_rate(f1_low_pass, 15, Ts_new=1/factor)
-# f2_low_pass = convert_sampling_rate(f2_low_pass, 15, Ts_new=1/factor)
+#factor = 1 # remove when sampling rate conversion is implemented
+factor = 2
+N = N*factor
+samples = samples*factor
+f1_low_pass = convert_sampling_rate(f1_low_pass, 15, Ts_new=1/factor)
+f2_low_pass = convert_sampling_rate(f2_low_pass, 15, Ts_new=1/factor)
 # Modulate the functions
-mod1 = 8 # times base frequency
+mod1 =  8 # times base frequency
 w_mod1 = 2*pi/(samples/mod1)*factor # Modulation frequency
 mod2 = 23 # times base frequency
 w_mod2 = 2*pi/(samples/mod2)*factor # Modulation frequency
@@ -82,6 +82,7 @@ axs[5,0].set_title('Reconstructed functions')
 axs[5,0].set_xlabel('t [s]')
 
 # Frequency Domain
+axs[0,1].scatter(samples/2-1, 0, color='white') # Add white point to make the x-axis visible
 axs[0,1].scatter(range(int(samples/2/factor)), np.abs(f1_fft[:int(samples/2/factor)]))
 axs[0,1].scatter(range(int(samples/2/factor)), np.abs(f2_fft[:int(samples/2/factor)]))
 axs[0,1].set_title('Fourier Coefficients of the functions')
