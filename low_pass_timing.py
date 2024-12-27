@@ -34,8 +34,8 @@ def low_pass_impulse_response():
     f_no_hamming = low_pass_filter(u, wc, N, hamming_window=False)
     plt.plot(f.f)
     plt.plot(f_no_hamming.f)
-    plt.title("Low pass filter impulse response")
-    plt.legend(["Hamming window", "No window"])
+    plt.title("Low-pass filter impulse response")
+    plt.legend(["Hamming window", "No windowing"])
     plt.xlabel("n")
     plt.grid()
     plt.show()
@@ -58,7 +58,10 @@ def low_pass_passband():
             amplitude = max(f_low_pass.f[2 * N : -2 * N])  # Calculate max amplitude
             A_w.append(amplitude)  # Store amplitude for current N
 
-        A.append(A_w)  # Store amplitudes for current w
+        f_low_pass_no_hamming = low_pass_filter(f, 10, N, hamming_window=False)
+        amplitude_no_hamming = max(f_low_pass_no_hamming.f[2 * N : -2 * N])
+        A_w.append(amplitude_no_hamming)
+        A.append(A_w)
 
     # Convert A to a NumPy array for easier manipulation
     A = np.array(A)
@@ -66,6 +69,7 @@ def low_pass_passband():
     # Plot the amplitude of the filtered signal for each filter length
     for i, N in enumerate(n_range):
         plt.plot(w_range, A[:, i], label=f'N={N}')
+    plt.plot(w_range, A[:, -1], label=f'N={N} (no windowing)')
     # Plot ideal filter
     A_ideal = [1, 1, 0, 0]
     w_ideal = [0.1, 10, 10, 1000]
@@ -74,7 +78,7 @@ def low_pass_passband():
     plt.xscale('log')
     plt.xlabel('Frequency (rad/s)')
     plt.ylabel('Amplitude')
-    plt.title('Amplitude of the Filtered Signal')
+    plt.title('Amplitude of the the Low-passed Signal')
     plt.legend()
     plt.grid()
     plt.show()
@@ -109,7 +113,7 @@ def low_pass_passband_compare_hamming():
     # Plot the amplitude of the filtered signal for each filter length
     for i, N in enumerate(n_range):
         plt.plot(w_range, A[:, 2*i], label=f'N={N}', color='tab:orange')
-        plt.plot(w_range, A[:, 2*i+1], label=f'N={N} (no hamming window)', color='darkred')
+        plt.plot(w_range, A[:, 2*i+1], label=f'N={N} (no windowing)', color='darkred')
     # Plot ideal filter
     A_ideal = [1, 1, 0, 0]
     w_ideal = [0.1, 10, 10, 1000]
@@ -118,20 +122,20 @@ def low_pass_passband_compare_hamming():
     plt.xscale('log')
     plt.xlabel('Frequency (rad/s)')
     plt.ylabel('Amplitude')
-    plt.title('Amplitude of the Filtered Signal')
+    plt.title('Amplitude of the Low-passed Signal')
     plt.legend()
     plt.grid()
     plt.show()
 
 
 if __name__ == '__main__':
-    #low_pass_impulse_response()
-    #low_pass_passband()
-    #low_pass_passband_compare_hamming()
+    # low_pass_impulse_response()
+    # low_pass_passband()
+    # low_pass_passband_compare_hamming()
     # Timing comparison
-    function_len = int(1e4)
+    function_len = int(2e4)
     filter_len = 50
-    num_tests = 100
+    num_tests = 200
     print(f"Timing comparison for Low-Pass-Filter:\nFunction length: {function_len}\nFilter length {filter_len}\nNumber of tests: {num_tests}")
 
     use_fast_convolution = True

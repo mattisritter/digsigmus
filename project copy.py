@@ -30,9 +30,9 @@ factor = 1 # remove when sampling rate conversion is implemented
 # f2_low_pass = convert_sampling_rate(f2_low_pass, 15, Ts_new=1/factor)
 # Modulate the functions
 mod1 = 8 # times base frequency
-w_mod1 = 2*pi/(samples/mod1) # Modulation frequency
-mod2 = 22 # times base frequency
-w_mod2 = 2*pi/(samples/mod2) # Modulation frequency
+w_mod1 = 2*pi/(samples/mod1)*factor # Modulation frequency
+mod2 = 23 # times base frequency
+w_mod2 = 2*pi/(samples/mod2)*factor # Modulation frequency
 f1_mod = modulate(f1_low_pass, w_mod1)
 f2_mod = modulate(f2_low_pass, w_mod2)
 # Add the modulated functions
@@ -79,42 +79,52 @@ axs[4,0].set_title('Demodulated functions')
 axs[5,0].plot(f1_demod_low_pass.t[2*N:samples+2*N], f1_demod_low_pass.f[2*N:samples+2*N])
 axs[5,0].plot(f2_demod_low_pass.t[2*N:samples+2*N], f2_demod_low_pass.f[2*N:samples+2*N])
 axs[5,0].set_title('Reconstructed functions')
+axs[5,0].set_xlabel('t [s]')
 
 # Frequency Domain
 axs[0,1].scatter(range(int(samples/2/factor)), np.abs(f1_fft[:int(samples/2/factor)]))
 axs[0,1].scatter(range(int(samples/2/factor)), np.abs(f2_fft[:int(samples/2/factor)]))
-axs[0,1].set_title('Fourier Transform of the functions')
+axs[0,1].set_title('Fourier Coefficients of the functions')
 axs[1,1].scatter(range(int(samples/2)), np.abs(f1_low_pass_fft[:int(samples/2)]))
 axs[1,1].scatter(range(int(samples/2)), np.abs(f2_low_pass_fft[:int(samples/2)]))
 axs[1,1].axvline(x=cut_off, color='k', linestyle='--', label='Cut-off frequency') # Add vertical line at cut-off frequency
-axs[1,1].set_title('Fourier Transform of the low-pass filtered functions')
+axs[1,1].text((cut_off+1)/31, 0.5, '$\omega_c$', transform=axs[1,1].transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+axs[1,1].set_title('Fourier Coefficients of the low-pass filtered functions')
 axs[2,1].scatter(range(int(samples/2)), np.abs(f1_mod_fft[:int(samples/2)]))
 axs[2,1].scatter(range(int(samples/2)), np.abs(f2_mod_fft[:int(samples/2)]))
 axs[2,1].axvline(x=mod1, color='k', linestyle='--') # Add vertical line at modulation frequency
+axs[2,1].text((mod1+1)/31, 0.5, '$\omega_{mod_1}$', transform=axs[2,1].transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
 axs[2,1].fill_between([mod1-cut_off, mod1+cut_off], 0, max(np.abs(f1_mod_fft[:int(samples/2)])), color='tab:blue', alpha=0.3) # Add a sqaure showing the frequency band
 axs[2,1].axvline(x=mod2, color='k', linestyle='--') # Add vertical line at modulation frequency
+axs[2,1].text((mod2)/32, 0.6, '$\omega_{mod_2}$', transform=axs[2,1].transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
 axs[2,1].fill_between([mod2-cut_off, mod2+cut_off], 0, max(np.abs(f2_mod_fft[:int(samples/2)])), color='tab:orange', alpha=0.3) # Add a sqaure showing the frequency band
-axs[2,1].set_title('Fourier Transform of the modulated functions')
+axs[2,1].set_title('Fourier Coefficients of the modulated functions')
 axs[3,1].scatter(range(int(samples/2)), np.abs(f_sum_fft[:int(samples/2)]), color='tab:green')
-axs[3,1].set_title('Fourier Transform of the sum of modulated functions')
+axs[3,1].set_title('Fourier Coefficients of the sum')
 axs[4,1].scatter(range(int(samples/2)), np.abs(f1_demod_fft[:int(samples/2)]))
 axs[4,1].scatter(range(int(samples/2)), np.abs(f2_demod_fft[:int(samples/2)]))
-axs[4,1].set_title('Fourier Transform of the demodulated functions')
+axs[4,1].set_title('Fourier Coefficients of the demodulated functions')
 axs[5,1].scatter(range(int(samples/2)), np.abs(f1_demod_low_pass_fft[:int(samples/2)]))
 axs[5,1].scatter(range(int(samples/2)), np.abs(f2_demod_low_pass_fft[:int(samples/2)]))
-axs[5,1].set_title('Fourier Transform of the reconstructed functions')
+axs[5,1].set_title('Fourier Coefficients of the reconstructed functions')
+axs[5,1].set_xlabel('k')
+
+plt.tight_layout()
 
 plt.show()
 
 # Plot low original vs reconstructed signals
-# shift original signals to align with reconstructed signals
-# t1_lp = [t_i - (2*N)*f1_demod_low_pass.Ts for t_i in f1_demod_low_pass.t]
-# t2_lp = [t_i - (2*N)*f2_demod_low_pass.Ts for t_i in f2_demod_low_pass.t]
-# fig, axs = plt.subplots(1, 2, figsize=(10, 10))
-# axs[0].plot(f1.t, f1.f)
-# axs[0].plot(t1_lp, f1_demod_low_pass.f, color='darkblue')
-# axs[1].plot(f2.t, f2.f, color='tab:orange')
-# axs[1].plot(t2_lp, f2_demod_low_pass.f, color='red')
-# plt.show()
+# shift signals to align
+t1_lp = [t_i - (N)*f1_demod_low_pass.Ts for t_i in f1_demod_low_pass.t]
+t2_lp = [t_i - (N)*f2_demod_low_pass.Ts for t_i in f2_demod_low_pass.t]
+fig, axs = plt.subplots(1, 2, figsize=(10, 10))
+axs[0].plot(f1_low_pass.t[N:samples+N], f1_low_pass.f[N:samples+N])
+axs[0].plot(t1_lp[2*N:samples+2*N], f1_demod_low_pass.f[2*N:samples+2*N], color='darkblue')
+axs[0].set_xlabel('t [s]')
+axs[1].plot(f2_low_pass.t[N:samples+N], f2_low_pass.f[N:samples+N], color='tab:orange')
+axs[1].plot(t2_lp[2*N:samples+2*N], f2_demod_low_pass.f[2*N:samples+2*N], color='red')
+axs[1].set_xlabel('t [s]')
+plt.tight_layout()
+plt.show()
 
 
