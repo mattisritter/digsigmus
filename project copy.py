@@ -9,7 +9,7 @@ from fft import fft_iterative
 from add import add
 
 # Define the functions
-samples = 32
+samples = 64
 t = np.linspace(0, 2*pi, samples, endpoint=False)
 fcn = 3 + np.cos(t+1) + 2*np.cos(3*t+2) - 5*np.cos(4*t-1) + np.cos(13*t)
 f1 = Function(range(samples), Ts=1, f=fcn)
@@ -29,7 +29,7 @@ if factor != 1:
     f1_low_pass = convert_sampling_rate(f1_low_pass, 15, Ts_new=1/factor)
     f2_low_pass = convert_sampling_rate(f2_low_pass, 15, Ts_new=1/factor)
 # Modulate the functions
-use_quadrature = True
+use_quadrature = False
 if not use_quadrature:
     mod1 =  8 # times base frequency
     w_mod1 = 2*pi/(samples/mod1)*factor # Modulation frequency
