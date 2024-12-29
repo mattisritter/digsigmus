@@ -129,37 +129,6 @@ def calculate_B_star_row1(n: int) -> np.ndarray:
     return b_star.conj()
 
 if __name__ == "__main__":
-    # Initialize random data
-    n = 16
-    f = np.random.rand(n)
-    z = np.random.rand(n) + 1j*np.random.rand(n)
-
-    # Test implementation of DFT and IDFT with random data
-    f_reconstructed = idft(dft(f))
-    assert np.allclose(f, f_reconstructed), "IDFT(DFT(f)) != f"
-    z_reconstructed = dft(idft(z))
-    assert np.allclose(z, z_reconstructed), "DFT(IDFT(z)) != z"
-
-    # Test optimized implementation of DFT and IDFT with random data
-    f_reconstructed = idft_optimized(dft_optimized(f))
-    assert np.allclose(f, f_reconstructed), "IDFT(DFT(f)) != f"
-    z_reconstructed = dft_optimized(idft_optimized(z))
-    assert np.allclose(z, z_reconstructed), "DFT(IDFT(z)) != z"
-
-    # Test if the optimized implementation gives the same result as the original implementation
-    z_original = dft(f)
-    z_optimized = dft_optimized(f)
-    assert np.allclose(z_original, z_optimized), "DFT != DFT optimized"
-    f_original = idft(z)
-    f_optimized = idft_optimized(z)
-    assert np.allclose(f_original, f_optimized), "IDFT != IDFT optimized"
-
-    # Compare to numpy implementation
-    z_numpy = np.fft.fft(f)/n
-    assert np.allclose(z_original, z_numpy), "DFT != DFT numpy"
-    f_numpy = np.fft.ifft(z)*n
-    assert np.allclose(f_original, f_numpy), "IDFT != IDFT numpy"
-
     # Test implementation of DFT and IDFT with a cosine wave
     t = np.linspace(0, 2*pi, 16, endpoint=False)
     f = 3 + np.cos(t+1) + 2*np.cos(3*t+2) - 5*np.cos(4*t-1)

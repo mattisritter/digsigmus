@@ -1,4 +1,4 @@
-from fft import fft_iterative
+from fft import fft_iterative, _iterative_algorithm, _precompute_exponentials
 from function import Function
 import numpy as np
 
@@ -21,11 +21,15 @@ def fast_convolution(f: Function, g: Function, F) -> Function:
     assert F >= G, "F must be greater than or equal to the length of the impulse response."
     
     # Zero-pad the impulse response to F dimensions
-    g_padded = np.zeros(F)
+    g_padded = np.zeros(F, dtype=np.complex128)
     g_padded[:G] = g.f
+
+    # Precompute the exponential factors
+    exp_factors = _precompute_exponentials(F)
+    exp_factors_inv = _precompute_exponentials(F, inverse=True)
     
     # Compute FFT of the padded impulse response
-    G_fft = fft_iterative(g_padded)
+    G_fft = _iterative_algorithm(g_padded, exp_factors)
     
     # Initialize variables
     h = []
@@ -34,14 +38,14 @@ def fast_convolution(f: Function, g: Function, F) -> Function:
     
     while s < f.len:
         # Extract F-dimensional sample block from the signal
-        f_padded = np.zeros(F)
+        f_padded = np.zeros(F, dtype=np.complex128)
         for i in range(F):
             if 0 <= s + i < f.len:
                 f_padded[i] = f.f[s + i]
         
         # Perform cyclic convolution using FFT
-        F_fft = fft_iterative(f_padded)
-        z = F * fft_iterative(F_fft * G_fft, inverse=True).real
+        F_fft = _iterative_algorithm(f_padded, exp_factors)
+        z = F * np.real(_iterative_algorithm(F_fft * G_fft, exp_factors_inv, inverse=True))
         
         # Append the correct sample values to the output
         h.extend(z[G - 1:F])

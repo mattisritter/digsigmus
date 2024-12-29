@@ -22,24 +22,34 @@ N = 15 # Filter length
 f1_low_pass = low_pass_filter(f1, wc, N)
 f2_low_pass = low_pass_filter(f2, wc, N)
 # Increase the sampling rate
-#factor = 1 # remove when sampling rate conversion is implemented
-factor = 2
-N = N*factor
-samples = samples*factor
-f1_low_pass = convert_sampling_rate(f1_low_pass, 15, Ts_new=1/factor)
-f2_low_pass = convert_sampling_rate(f2_low_pass, 15, Ts_new=1/factor)
+factor = 1 # remove when sampling rate conversion is implemented
+if factor != 1:
+    N = N*factor
+    samples = samples*factor
+    f1_low_pass = convert_sampling_rate(f1_low_pass, 15, Ts_new=1/factor)
+    f2_low_pass = convert_sampling_rate(f2_low_pass, 15, Ts_new=1/factor)
 # Modulate the functions
-mod1 =  8 # times base frequency
-w_mod1 = 2*pi/(samples/mod1)*factor # Modulation frequency
-mod2 = 23 # times base frequency
-w_mod2 = 2*pi/(samples/mod2)*factor # Modulation frequency
-f1_mod = modulate(f1_low_pass, w_mod1)
-f2_mod = modulate(f2_low_pass, w_mod2)
+use_quadrature = True
+if not use_quadrature:
+    mod1 =  8 # times base frequency
+    w_mod1 = 2*pi/(samples/mod1)*factor # Modulation frequency
+    mod2 = 23 # times base frequency
+    w_mod2 = 2*pi/(samples/mod2)*factor # Modulation frequency
+    f1_mod = modulate(f1_low_pass, w_mod1)
+    f2_mod = modulate(f2_low_pass, w_mod2)
+else: # Quadrature modulation
+    mod1 =  8 # times base frequency
+    mod2 = mod1
+    w_mod = 2*pi/(samples/mod1)*factor # Modulation frequency
+    f1_mod, f2_mod = quadrature_modulate(f1_low_pass, f2_low_pass, w_mod)
 # Add the modulated functions
 f_sum = add(f1_mod, f2_mod)
 # Demodulate the sum
-f1_demod = demodulate(f_sum, w_mod1)
-f2_demod = demodulate(f_sum, w_mod2)
+if not use_quadrature:
+    f1_demod = demodulate(f_sum, w_mod1)
+    f2_demod = demodulate(f_sum, w_mod2)
+else: # Quadrature demodulation
+    f1_demod, f2_demod = quadrature_demodulate(f_sum, w_mod)
 # Low-pass filter the demodulated functions
 f1_demod_low_pass = low_pass_filter(f1_demod, wc, N)
 f2_demod_low_pass = low_pass_filter(f2_demod, wc, N)
@@ -116,16 +126,16 @@ plt.show()
 
 # Plot low original vs reconstructed signals
 # shift signals to align
-t1_lp = [t_i - (N)*f1_demod_low_pass.Ts for t_i in f1_demod_low_pass.t]
-t2_lp = [t_i - (N)*f2_demod_low_pass.Ts for t_i in f2_demod_low_pass.t]
-fig, axs = plt.subplots(1, 2, figsize=(10, 10))
-axs[0].plot(f1_low_pass.t[N:samples+N], f1_low_pass.f[N:samples+N])
-axs[0].plot(t1_lp[2*N:samples+2*N], f1_demod_low_pass.f[2*N:samples+2*N], color='darkblue')
-axs[0].set_xlabel('t [s]')
-axs[1].plot(f2_low_pass.t[N:samples+N], f2_low_pass.f[N:samples+N], color='tab:orange')
-axs[1].plot(t2_lp[2*N:samples+2*N], f2_demod_low_pass.f[2*N:samples+2*N], color='red')
-axs[1].set_xlabel('t [s]')
-plt.tight_layout()
-plt.show()
-
+if False:
+    t1_lp = [t_i - (N)*f1_demod_low_pass.Ts for t_i in f1_demod_low_pass.t]
+    t2_lp = [t_i - (N)*f2_demod_low_pass.Ts for t_i in f2_demod_low_pass.t]
+    fig, axs = plt.subplots(1, 2, figsize=(10, 10))
+    axs[0].plot(f1_low_pass.t[N:samples+N], f1_low_pass.f[N:samples+N])
+    axs[0].plot(t1_lp[2*N:samples+2*N], f1_demod_low_pass.f[2*N:samples+2*N], color='darkblue')
+    axs[0].set_xlabel('t [s]')
+    axs[1].plot(f2_low_pass.t[N:samples+N], f2_low_pass.f[N:samples+N], color='tab:orange')
+    axs[1].plot(t2_lp[2*N:samples+2*N], f2_demod_low_pass.f[2*N:samples+2*N], color='red')
+    axs[1].set_xlabel('t [s]')
+    plt.tight_layout()
+    plt.show()
 

@@ -51,33 +51,31 @@ def quadrature_modulate(f: Function, g: Function, w_mod):
     g_mod = [g.f[i] * np.sin(w_mod * g.t[i]) for i in range(g.len)]
     return Function(f.n, Ts=f.Ts, f=f_mod), Function(g.n, Ts=g.Ts, f=g_mod)
 
-def quadrature_demodulate(f, g, w_mod):
+def quadrature_demodulate(h, w_mod):
     """
     Demodulate two functions using quadrature modulation.
     Parameters:
-        f: Function
-            First function to be demodulated
-        g: Function
-            Second function to be demodulated
+        h: Function
+            Function to be demodulated
         w_mod: float or int
             Demodulation frequency [rad/s]
     Return:
         Function, Function
             Demodulated functions
     """
-    f_demod = [f.f[i] * 2 * np.cos(w_mod * f.t[i]) for i in range(f.len)]
-    g_demod = [g.f[i] * 2 * np.sin(w_mod * g.t[i]) for i in range(g.len)]
-    return Function(f.n, Ts=f.Ts, f=f_demod), Function(g.n, Ts=g.Ts, f=g_demod)
+    f_demod = [h.f[i] * 2 * np.cos(w_mod * h.t[i]) for i in range(h.len)]
+    g_demod = [h.f[i] * 2 * np.sin(w_mod * h.t[i]) for i in range(h.len)]
+    return Function(h.n, Ts=h.Ts, f=f_demod), Function(h.n, Ts=h.Ts, f=g_demod)
 
 
 if __name__ == "__main__":
     # Define first function
-    n = range(0, 10)
+    n = range(0, 50)
     Ts = 1
-    f1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    f1 = list(n)
     function1 = Function(n, Ts, f=f1)
     # Modulate the function
-    w_mod = 2
+    w_mod = 1
     function1_mod = modulate(function1, w_mod)
     # Plot
     plt.figure(1)

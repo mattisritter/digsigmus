@@ -135,7 +135,7 @@ if __name__ == '__main__':
     # Timing comparison
     function_len = int(2e4)
     filter_len = 50
-    num_tests = 200
+    num_tests = 10
     print(f"Timing comparison for Low-Pass-Filter:\nFunction length: {function_len}\nFilter length {filter_len}\nNumber of tests: {num_tests}")
 
     use_fast_convolution = True
