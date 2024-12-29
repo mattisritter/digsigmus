@@ -85,7 +85,7 @@ if __name__ == "__main__":
     function1_demod = demodulate(function1_mod, w_mod1)
     function2_demod = demodulate(function2_mod, w_mod2)
     
-    fig, axs = plt.subplots(2, 2, figsize=(10, 5))
+    fig, axs = plt.subplots(2, 2, figsize=(10, 4))
     axs[0,0].plot(function1_mod.t, function1_mod.f)
     axs[0,0].plot(function2_mod.t, function2_mod.f)
     axs[0,0].plot(function1.t, function1.f, color='darkblue')

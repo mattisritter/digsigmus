@@ -70,7 +70,7 @@ def compare_methods():
     memory = [dft_memory / 1024, fft_recursive_memory / 1024, fft_iterative_memory / 1024]  # Convert to KiB
 
     # Plot time and memory usage
-    fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+    fig, ax = plt.subplots(1, 2, figsize=(10, 4))
 
     # Computing Time Plot
     bars_time = ax[0].bar(methods, times, color=['blue', 'orange', 'green'], label="Time [s]")
@@ -83,7 +83,7 @@ def compare_methods():
         height = bar.get_height()
         ax[0].annotate(f'{height:.3f}', 
                        xy=(bar.get_x() + bar.get_width() / 2, height),
-                       xytext=(0, 2),  # Offset
+                       xytext=(0, 0),  # Offset
                        textcoords="offset points",
                        ha='center', va='bottom')
 
@@ -98,7 +98,7 @@ def compare_methods():
         height = bar.get_height()
         ax[1].annotate(f'{height:.3f}', 
                        xy=(bar.get_x() + bar.get_width() / 2, height),
-                       xytext=(0, 2),  # Offset
+                       xytext=(0, 0),  # Offset
                        textcoords="offset points",
                        ha='center', va='bottom')
 
