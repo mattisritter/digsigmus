@@ -136,7 +136,7 @@ The Python script \texttt{test\_dft\_fft.py} validates the numerical equivalence
 	\centering
 	\includegraphics[width=0.45\textwidth]{2023_11_29_Bilder_Dokumentation/Frequency_Domain_Comparison.png}
 	\includegraphics[width=0.45\textwidth]{2023_11_29_Bilder_Dokumentation/Time_Domain_Comparison.png}
-	\caption{Frequency domain comparison (Left) and Time-domain reconstruction validation (Right)}
+	\caption{Frequency domain comparison (left) and Time-domain reconstruction validation (right)}
 	\label{fig:frequency_domain_comparison}
 \end{figure}
 
@@ -154,7 +154,7 @@ Figure \ref{fig:time_memory_comparison} shows the execution time and memory usag
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.9\textwidth]{figures/dft_fftr_ffti.pdf}
-	\caption{(Left) Computational time for fixed signal length. (Right) Memory usage comparison.}
+	\caption{Computational time for fixed signal length (left). Memory usage comparison (right).}
 	\label{fig:time_memory_comparison}
 \end{figure}
 
@@ -171,7 +171,7 @@ Figure \ref{fig:scaling_comparison} examines execution time and memory usage as 
 	\includegraphics[width=0.45\textwidth]{2023_11_29_Bilder_Dokumentation/Execution_Time_vs_Signal_Length.png}
 	\hspace{0.05\textwidth}
 	\includegraphics[width=0.45\textwidth]{2023_11_29_Bilder_Dokumentation/Memory_Usage_vs_Signal_length.png}
-	\caption{(Left) Execution time vs. signal length. (Right) Memory usage vs. signal length.}
+	\caption{Execution time vs. signal length (left). Memory usage vs. signal length (right).}
 	\label{fig:scaling_comparison}
 \end{figure}
 
@@ -200,16 +200,36 @@ Tests in \texttt{test\_modulation.py} confirm that:
 \end{itemize}
 
 \subsection{Visualization of Modulation Processes}
-Figure \ref{fig:modulation_visualizations} illustrates non-quadrature and quadrature modulation/demodulation. The left panel shows the original, modulated, and demodulated signals for the non-quadrature case, where phase shifts and amplitude scaling are evident. The right panel depicts quadrature modulation and demodulation, showcasing the successful separation and reconstruction of two orthogonal signal components. Both visualizations confirm the correctness and reliability of the implementations.
+Figure \ref{fig:modulation_visualizations} illustrates non-quadrature and quadrature modulation/demodulation.
+The left panel shows the original, modulated, and demodulated signals for the non-quadrature case,
+where phase shifts and amplitude scaling are evident.
+The right panel depicts quadrature modulation and demodulation,
+showcasing the successful separation and reconstruction of two orthogonal signal components.
+Both visualizations confirm the correctness and reliability of the implementations.
 
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.9\textwidth]{figures/modulation.pdf}
-	\caption{(Left) Non-quadrature modulation and demodulation. (Right) Quadrature modulation and demodulation.}
+	\caption{Non-quadrature modulation and demodulation (left). Quadrature modulation and demodulation (right).}
 	\label{fig:modulation_visualizations}
 \end{figure}
 
-\chapter{Low-Pass Filter}
+\section{Convolution}
+
+Convolution is implemented in time-domain and as fast convolution using the \ac{FFT}.
+To verify the correctness of the implementations,
+a sawtooth signal is convolved with a shifted impulse signal.
+The results are the same for both implementations within a tolerance smaller than \(\pm10^{-15}\).
+When convolving with a shifted impulse signal, the convolution is equal to the shifted signal.
+This is shown in Figure \ref{fig:convolution}.
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.7\textwidth]{figures/convolution.pdf}
+	\caption{Convolution of a sawtooth signal with a shifted impulse signal.}
+	\label{fig:convolution}
+\end{figure}
+
+\section{Low-Pass Filter}
 
 The filter is implemented by convolving the input signal with the \(sinc\) function.
 By filtering an impulse signal, the filter can be obtained.
@@ -217,8 +237,8 @@ Figure \ref{fig:low_pass_filter} (left) shows the filter with and without a Hamm
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.45\textwidth]{figures/impulse_response.pdf}
-	\includegraphics[width=0.45\textwidth]{figures/passband.pdf}
+	\includegraphics[width=0.4\textwidth]{figures/impulse_response.pdf}
+	\includegraphics[width=0.4\textwidth]{figures/passband.pdf}
 	\caption{Impulse response of the low-pass filter with N=20 (left). Amplitude of the low-passed signal with different filter lengths (right).}
 	\label{fig:low_pass_filter}
 \end{figure}
@@ -265,41 +285,58 @@ and the second signal is a sawtooth wave (Equation 2).
 	f_2(t) = 3 \cdot (t\mod\pi)
 \end{equation}
 Both signals are sampled 32 times in the interval from 0 to 2\(\pi\).
-Each step of the transmission is shown in Figure \ref{fig:overall}, where the left side depicts the operations in time-domain
+Each step of the transmission is shown in Figure \ref{fig:overall} (top), where the left side depicts the operations in time-domain
 and the right side in frequency-domain, by showing the magnitude of the first half of the Fourier coefficients.
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=\textwidth]{figures/overall_sampling.pdf}
-	\caption{Overall sytsem.}
-	\label{fig:overall}
-\end{figure}
+The low-pass filtered signals are compared to the reconstructed signals in the bottom figure.
 
-The cut-off frequency is choosen to be 7 times the base frequency of the cosine wave.
+The cut-off frequency is choosen to be \(\omega_c=\) 7 \(rad/s\).
 As seen in the second row, the low-pass filter removes the high frequency components.
-Furthermore the sampling rate is increased after the low-pass filter,
+Furthermore the sampling rate is increased by factor 2 after the low-pass filter,
 because modulation would not be possible without violating the sampling theorem.
-Then the signals are modulated, so that their frequency bands do not overlap.
+Then the signals are modulated with \(\omega_{mod_1}=\) 8 \(rad/s\) and \(\omega_{mod_2}=\) 23 \(rad/s\),
+so that their frequency bands do not overlap.
 After adding, demodulation and low-pass filtering, the reconstructed signals are nearly equal to the original, low-passed signals.
 
 An alternative approach is to use quadrature modulation.
 This is shown in Figure \ref{fig:quadrature},
-where the signals are modulated with the same modulation frequency,
+where the signals are modulated with the same modulation frequency \(\omega_{mod}=\) 8 \(rad/s\),
 but with a cosine and a sine wave, respectively.
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=\textwidth]{figures/overall_quad.pdf}
-	\caption{Overall sytsem with quadrature modulation.}
-	\label{fig:quadrature}
-\end{figure}
 
 When a overlap of the frequency bands is introduced,
 the signals cannot be reconstructed properly.
+For this example the signals are sampled 64 times.
+The modulation frequencies are \(\omega_{mod_1}=\) 8 \(rad/s\) and \(\omega_{mod_2}=\) 19 \(rad/s\).
 This is shown in Figure \ref{fig:overlap},
 where the signals contain noise of the other signal.
+Most significant is a noise in the sawtooth signal with a frequency of 7 \(rad/s\).
+
+
+\appendix
+
+\chapter{Figures}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{figures/overall_sampling.pdf}
+	\includegraphics[width=0.9\textwidth]{figures/sampling_cmp.pdf}
+	\caption{Overall sytsem (top). Reconstructed vs. low-pass filtered signals (bottom).}
+	\label{fig:overall}
+\end{figure}
+
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{figures/overall_quad.pdf}
+	\includegraphics[width=0.9\textwidth]{figures/quad_cmp.pdf}
+	\caption{Overall sytsem with quadrature modulation (top). Reconstructed vs. low-pass filtered signals (bottom).}
+	\label{fig:quadrature}
+\end{figure}
+
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=\textwidth]{figures/overall_overlapping.pdf}
-	\caption{Overall sytsem with overlapping frequency bands.}
+	\includegraphics[width=0.9\textwidth]{figures/overlapping_cmp.pdf}
+	\caption{Overall sytsem with overlapping frequency bands (top). Reconstructed vs. low-pass filtered signals (bottom).}
 	\label{fig:overlap}
 \end{figure}
 
