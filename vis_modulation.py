@@ -3,80 +3,53 @@ from math import pi
 from function import Function
 from modulation import modulate, demodulate, quadrature_modulate, quadrature_demodulate
 
-def visualize_modulation_and_demodulation():
-    # Define original function
-    n = list(range(0, 10))
-    Ts = 1
-    f_values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    f = Function(n, Ts, f=f_values)
+# Define first function
+n = range(0, 32)
+ws = pi
+f1 = list(n)
+f2 = [10] * len(n)
+function1 = Function(n, ws=ws, f=f1)
+function2 = Function(n, ws=ws, f=f2)
+# Modulate the function
+w_mod1 = 4
+function1_mod = modulate(function1, w_mod1)
+w_mod2 = 8
+function2_mod = modulate(function2, w_mod2)
 
-    # Modulate and demodulate
-    w_mod = pi
-    f_mod = modulate(f, w_mod)
-    f_demod = demodulate(f_mod, w_mod)
+function1_demod = demodulate(function1_mod, w_mod1)
+function2_demod = demodulate(function2_mod, w_mod2)
 
-    # Plot the results
-    plt.figure(figsize=(12, 6))
-    plt.plot(f.t, f.f, label="Original Signal", marker='o')
-    plt.plot(f_mod.t, f_mod.f, label="Modulated Signal", linestyle='--')
-    plt.plot(f_demod.t, f_demod.f, label="Demodulated Signal", linestyle='-.')
-    plt.title("Modulation and Demodulation")
-    plt.xlabel("Time")
-    plt.ylabel("Amplitude")
-    plt.legend()
-    plt.grid()
-    plt.show()
-
-def visualize_quadrature_modulation_and_demodulation():
-    # Define original functions
-    n = list(range(0, 10))
-    Ts = 1
-    f_values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-    g_values = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    f = Function(n, Ts, f=f_values)
-    g = Function(n, Ts, f=g_values)
-
-    # Quadrature modulation and demodulation
-    w_mod = pi
-    f_mod, g_mod = quadrature_modulate(f, g, w_mod)
-    f_demod, g_demod = quadrature_demodulate(f_mod, g_mod, w_mod)
-
-    # Plot the results
-    plt.figure(figsize=(12, 8))
-
-    # Original signals
-    plt.subplot(3, 1, 1)
-    plt.plot(f.t, f.f, label="Original f(t)", marker='o')
-    plt.plot(g.t, g.f, label="Original g(t)", marker='x')
-    plt.title("Original Signals")
-    plt.xlabel("Time")
-    plt.ylabel("Amplitude")
-    plt.legend()
-    plt.grid()
-
-    # Modulated signals
-    plt.subplot(3, 1, 2)
-    plt.plot(f_mod.t, f_mod.f, label="f_mod(t)", linestyle='--')
-    plt.plot(g_mod.t, g_mod.f, label="g_mod(t)", linestyle=':')
-    plt.title("Quadrature Modulated Signals")
-    plt.xlabel("Time")
-    plt.ylabel("Amplitude")
-    plt.legend()
-    plt.grid()
-
-    # Demodulated signals
-    plt.subplot(3, 1, 3)
-    plt.plot(f_demod.t, f_demod.f, label="f_demod(t)", linestyle='-.')
-    plt.plot(g_demod.t, g_demod.f, label="g_demod(t)", linestyle='-')
-    plt.title("Quadrature Demodulated Signals")
-    plt.xlabel("Time")
-    plt.ylabel("Amplitude")
-    plt.legend()
-    plt.grid()
-
-    plt.tight_layout()
-    plt.show()
-
-if __name__ == "__main__":
-    visualize_modulation_and_demodulation()
-    visualize_quadrature_modulation_and_demodulation()
+fig, axs = plt.subplots(2, 2, figsize=(10, 4))
+axs[0,0].plot(function1_mod.t, function1_mod.f)
+axs[0,0].plot(function2_mod.t, function2_mod.f)
+axs[0,0].plot(function1.t, function1.f, color='darkblue')
+axs[0,0].plot(function2.t, function2.f, color='darkred')
+axs[0,0].set_title('Modulated functions')
+axs[0,0].grid()
+axs[1,0].plot(function1_demod.t, function1_demod.f)
+axs[1,0].plot(function2_demod.t, function2_demod.f)
+axs[1,0].plot(function1.t, function1.f, color='darkblue')
+axs[1,0].plot(function2.t, function2.f, color='darkred')
+axs[1,0].set_title('Demodulated functions')
+axs[1,0].grid()
+axs[1,0].set_xlabel('n')
+# Quadrature modulation
+w_mod = 6
+function1_mod, function2_mod = quadrature_modulate(function1, function2, w_mod)
+function1_demod, _ = quadrature_demodulate(function1_mod, w_mod)
+_, function2_demod = quadrature_demodulate(function2_mod, w_mod)
+axs[0,1].plot(function1_mod.t, function1_mod.f)
+axs[0,1].plot(function2_mod.t, function2_mod.f)
+axs[0,1].plot(function1.t, function1.f, color='darkblue')
+axs[0,1].plot(function2.t, function2.f, color='darkred')
+axs[0,1].set_title('Quadrature Modulated functions')
+axs[0,1].grid()
+axs[1,1].plot(function1_demod.t, function1_demod.f)
+axs[1,1].plot(function2_demod.t, function2_demod.f)
+axs[1,1].plot(function1.t, function1.f, color='darkblue')
+axs[1,1].plot(function2.t, function2.f, color='darkred')
+axs[1,1].set_title('Quadrature Demodulated functions')
+axs[1,1].grid()
+axs[1,1].set_xlabel('n')
+plt.tight_layout()
+plt.show()
