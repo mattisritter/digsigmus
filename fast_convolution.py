@@ -54,7 +54,7 @@ def fast_convolution(f: Function, g: Function, F) -> Function:
         s += delta
 
     # Remove the zeros at the end
-    while abs(h[-1]) < 1e-12:
+    while abs(h[-1]) < 1e-12 and len(h) > f.len+g.len/2:
         h.pop()
     
     return Function(range(len(h)), Ts=f.Ts, f=h)
