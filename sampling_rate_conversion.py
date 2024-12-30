@@ -5,6 +5,21 @@ import matplotlib.pyplot as plt
 
 ## Errors ad t=0
 def convert_sampling_rate(f, N, ws_new=None, Ts_new=None):
+    """
+    Convert the sampling rate of a function object.
+    Parameters:
+        f: Function
+            Function object to be converted
+        N: int
+            Number of samples to consider in the sinc function
+        ws_new=None: float
+            New sampling frequency [rad/s]
+        Ts_new=None: float
+            New sampling period [s]
+    Return:
+        Function
+            Function object with the new sampling rate
+    """
     if ws_new is None:
         ws_new = 2*pi/Ts_new
     elif Ts_new is None:
@@ -34,7 +49,6 @@ if __name__ == "__main__":
     # Convert the sampling rate
     Ts_new = 0.04 # New sampling rate
     f_new = convert_sampling_rate(f, N=5, Ts_new=Ts_new)
-
 
     # Plot the original and new signals
     plt.plot(f.t, f.f, label='Original', marker='x')

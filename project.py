@@ -2,228 +2,140 @@ from math import pi, ceil
 import numpy as np
 import matplotlib.pyplot as plt
 from function import Function
+from sampling_rate_conversion import convert_sampling_rate
 from modulation import modulate, demodulate, quadrature_modulate, quadrature_demodulate
 from low_pass_filter import low_pass_filter
 from fft import fft_iterative
 from add import add
 
-plot = False
-analyse_in_frequency_domain = True
-
-# Define first function
-w = 2*pi/6.4 # Frequency of the cosine wave
-Ts = 0.2 # Sampling rate
-n = range(0, 256)
-fcn_handle = lambda t: np.cos(w*t) # Cosine function
-f1 = Function(n, Ts=Ts, function_handle=fcn_handle)
-# Define second function: sawtooth wave
-fcn_handle = lambda t: (t % 12)/8 - 0.5 # Sawtooth function
-f2 = Function(n, Ts=Ts, function_handle=fcn_handle)
-# Plot
-import matplotlib.pyplot as plt
-if plot:
-    plt.figure(1)
-    plt.plot(f1.t, f1.f, label='Cosine wave', marker='x')
-    plt.plot(f2.t, f2.f, label='Sawtooth wave', marker='o')
-    plt.title('Original functions')
-    plt.legend()
-    plt.show()
-
-# Lowpass filter the functions
-wc = 2*w # Cut-off frequency
-N = 50 # Filter length
+# Define the functions
+samples = 32
+t = np.linspace(0, 2*pi, samples, endpoint=False)
+fcn = 3 + np.cos(t+1) + 2*np.cos(3*t+2) - 5*np.cos(4*t-1) + np.cos(13*t)
+f1 = Function(range(samples), Ts=2*pi/samples, f=fcn)
+fcn = (t % pi)*3
+f2 = Function(range(samples), Ts=2*pi/samples, f=fcn)
+# Low-pass filter the functions
+wc = 7 # Cut-off frequency
+N = 15 # Filter length
 f1_low_pass = low_pass_filter(f1, wc, N)
 f2_low_pass = low_pass_filter(f2, wc, N)
-# Plot
-if plot:
-    plt.figure(2)
-    plt.plot(f1_low_pass.t, f1_low_pass.f, marker='x')
-    plt.plot(f2_low_pass.t, f2_low_pass.f, marker='o')
-    plt.title('Low-pass filtered functions')
-    plt.show()
-
+# Increase the sampling rate
+factor = 2 # remove when sampling rate conversion is implemented
+if factor != 1:
+    N = N*factor
+    samples = samples*factor
+    f1_low_pass = convert_sampling_rate(f1_low_pass, 15, Ts_new=f1.Ts/factor)
+    f2_low_pass = convert_sampling_rate(f2_low_pass, 15, Ts_new=f2.Ts/factor)
 # Modulate the functions
-w_mod1 = 5*w
-w_mod2 = 10*w
-f1_mod = modulate(f1_low_pass, w_mod1)
-f2_mod = modulate(f2_low_pass, w_mod2)
-# Plot
-if plot:
-    plt.figure(3)
-    plt.plot(f1_mod.t, f1_mod.f, marker='x')
-    plt.plot(f2_mod.t, f2_mod.f, marker='o')
-    plt.title('Modulated functions')
-    plt.show()
-
+use_quadrature = False
+if not use_quadrature:
+    w_mod1 = 8 # Modulation frequency
+    w_mod2 = 23 # Modulation frequency
+    f1_mod = modulate(f1_low_pass, w_mod1)
+    f2_mod = modulate(f2_low_pass, w_mod2)
+else: # Quadrature modulation
+    w_mod = 8 # Modulation frequency
+    f1_mod, f2_mod = quadrature_modulate(f1_low_pass, f2_low_pass, w_mod)
 # Add the modulated functions
 f_sum = add(f1_mod, f2_mod)
-# Plot
-if plot:
-    plt.figure(4)
-    plt.plot(f_sum.t, f_sum.f, marker='s', color='tab:green')
-    plt.title('Sum of modulated functions')
-    plt.show()
-
 # Demodulate the sum
-f1_demod = demodulate(f_sum, w_mod1)
-f2_demod = demodulate(f_sum, w_mod2)
-# Plot
-if plot:
-    plt.figure(5)
-    plt.plot(f1_demod.t, f1_demod.f, marker='x')
-    plt.plot(f2_demod.t, f2_demod.f, marker='o')
-    plt.title('Demodulated functions')
-    plt.show()
-
-# # Modulate using quadrature modulation
-# w_mod1 = 5*w
-# f1_mod, f2_mod = quadrature_modulate(f1_low_pass, f2_low_pass, w_mod1)
-# # Plot
-# plt.figure(3)
-# plt.plot(f1_mod.t, f1_mod.f, marker='x')
-# plt.plot(f2_mod.t, f2_mod.f, marker='o')
-# plt.title('Modulated functions')
-# plt.show()
-
-# # Add the modulated functions
-# f_sum = add(f1_mod, f2_mod)
-# # Plot
-# plt.figure(4)
-# plt.plot(f_sum.t, f_sum.f, marker='s', color='tab:green')
-# plt.title('Sum of modulated functions')
-# plt.show()
-
-# # Demodulate using quadrature demodulation
-# f1_demod, f2_demod = quadrature_demodulate(f_sum, f_sum, w_mod1)
-# # Plot
-# plt.figure(5)
-# plt.plot(f1_demod.t, f1_demod.f, marker='x')
-# plt.plot(f2_demod.t, f2_demod.f, marker='o')
-# plt.title('Demodulated functions')
-# plt.show()
-
-# Lowpass filter the demodulated functions
+if not use_quadrature:
+    f1_demod = demodulate(f_sum, w_mod1)
+    f2_demod = demodulate(f_sum, w_mod2)
+else: # Quadrature demodulation
+    f1_demod, f2_demod = quadrature_demodulate(f_sum, w_mod)
+# Low-pass filter the demodulated functions
 f1_demod_low_pass = low_pass_filter(f1_demod, wc, N)
 f2_demod_low_pass = low_pass_filter(f2_demod, wc, N)
-# Plot
-if plot:
-    plt.figure(6)
-    plt.plot(f1_demod_low_pass.t, f1_demod_low_pass.f, marker='x')
-    plt.plot(f2_demod_low_pass.t, f2_demod_low_pass.f, marker='o')
-    plt.title('Reconstructed functions')
+
+# Caclulate Fourier Transforms
+f1_fft = fft_iterative(f1.f)
+f2_fft = fft_iterative(f2.f)
+f1_low_pass_fft = fft_iterative(f1_low_pass.f[N:samples+N])
+f2_low_pass_fft = fft_iterative(f2_low_pass.f[N:samples+N])
+f1_mod_fft = fft_iterative(f1_mod.f[N:samples+N])
+f2_mod_fft = fft_iterative(f2_mod.f[N:samples+N])
+f_sum_fft = fft_iterative(f_sum.f[N:samples+N])
+f1_demod_fft = fft_iterative(f1_demod.f[N:samples+N])
+f2_demod_fft = fft_iterative(f2_demod.f[N:samples+N])
+f1_demod_low_pass_fft = fft_iterative(f1_demod_low_pass.f[2*N:samples+2*N])
+f2_demod_low_pass_fft = fft_iterative(f2_demod_low_pass.f[2*N:samples+2*N])
+
+
+# Plot in Subplots
+fig, axs = plt.subplots(6, 2, figsize=(10, 10))
+# Time Domain
+axs[0,0].plot(f1.t, f1.f, label='Cosine wave')
+axs[0,0].plot(f2.t, f2.f, label='Sawtooth wave')
+axs[0,0].set_title('Original functions')
+#axs[0,0].legend()
+axs[1,0].plot(f1_low_pass.t[N:samples+N], f1_low_pass.f[N:samples+N])
+axs[1,0].plot(f2_low_pass.t[N:samples+N], f2_low_pass.f[N:samples+N])
+axs[1,0].set_title('Low-pass filtered functions')
+axs[2,0].plot(f1_mod.t[N:samples+N], f1_mod.f[N:samples+N])
+axs[2,0].plot(f2_mod.t[N:samples+N], f2_mod.f[N:samples+N])
+axs[2,0].set_title('Modulated functions')
+axs[3,0].plot(f_sum.t[N:samples+N], f_sum.f[N:samples+N], color='tab:green')
+axs[3,0].set_title('Sum of modulated functions')
+axs[4,0].plot(f1_demod.t[N:samples+N], f1_demod.f[N:samples+N])
+axs[4,0].plot(f2_demod.t[N:samples+N], f2_demod.f[N:samples+N])
+axs[4,0].set_title('Demodulated functions')
+axs[5,0].plot(f1_demod_low_pass.t[2*N:samples+2*N], f1_demod_low_pass.f[2*N:samples+2*N])
+axs[5,0].plot(f2_demod_low_pass.t[2*N:samples+2*N], f2_demod_low_pass.f[2*N:samples+2*N])
+axs[5,0].set_title('Reconstructed functions')
+axs[5,0].set_xlabel('t [s]')
+
+# Frequency Domain
+axs[0,1].scatter(samples/2-1, 0, color='white') # Add white point to make the x-axis visible
+axs[0,1].scatter(range(int(samples/2/factor)), np.abs(f1_fft[:int(samples/2/factor)]))
+axs[0,1].scatter(range(int(samples/2/factor)), np.abs(f2_fft[:int(samples/2/factor)]))
+axs[0,1].set_title('Fourier Coefficients of the functions')
+axs[1,1].scatter(range(int(samples/2)), np.abs(f1_low_pass_fft[:int(samples/2)]))
+axs[1,1].scatter(range(int(samples/2)), np.abs(f2_low_pass_fft[:int(samples/2)]))
+axs[1,1].axvline(x=wc, color='k', linestyle='--', label='Cut-off frequency') # Add vertical line at cut-off frequency
+axs[1,1].text(8.3/32, 0.5, '$\omega_c$', transform=axs[1,1].transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+axs[1,1].set_title('Fourier Coefficients of the low-pass filtered functions')
+axs[2,1].scatter(range(int(samples/2)), np.abs(f1_mod_fft[:int(samples/2)]))
+axs[2,1].scatter(range(int(samples/2)), np.abs(f2_mod_fft[:int(samples/2)]))
+if not use_quadrature:
+    axs[2,1].axvline(x=w_mod1, color='k', linestyle='--') # Add vertical line at modulation frequency
+    axs[2,1].text(9.2/32, 0.5, '$\omega_{mod_1}$', transform=axs[2,1].transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    axs[2,1].fill_between([w_mod1-wc, w_mod1+wc], 0, max(np.abs(f1_mod_fft[:int(samples/2)])), color='tab:blue', alpha=0.3) # Add a sqaure showing the frequency band
+    axs[2,1].axvline(x=w_mod2, color='k', linestyle='--') # Add vertical line at modulation frequency
+    axs[2,1].text(19.2/32, 0.6, '$\omega_{mod_2}$', transform=axs[2,1].transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    axs[2,1].fill_between([w_mod2-wc, w_mod2+wc], 0, max(np.abs(f2_mod_fft[:int(samples/2)])), color='tab:orange', alpha=0.3) # Add a sqaure showing the frequency band
+else:
+    axs[2,1].axvline(x=w_mod, color='k', linestyle='--')
+    axs[2,1].text(8.5/16, 0.5, '$\omega_{mod}$', transform=axs[2,1].transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+    axs[2,1].fill_between([w_mod-wc, w_mod+wc], 0, max(np.abs(f1_mod_fft[:int(samples/2)])), color='tab:blue', alpha=0.3)
+    axs[2,1].fill_between([w_mod-wc, w_mod+wc], 0, max(np.abs(f2_mod_fft[:int(samples/2)])), color='tab:orange', alpha=0.3)
+axs[2,1].set_title('Fourier Coefficients of the modulated functions')
+axs[3,1].scatter(range(int(samples/2)), np.abs(f_sum_fft[:int(samples/2)]), color='tab:green')
+axs[3,1].set_title('Fourier Coefficients of the sum')
+axs[4,1].scatter(range(int(samples/2)), np.abs(f1_demod_fft[:int(samples/2)]))
+axs[4,1].scatter(range(int(samples/2)), np.abs(f2_demod_fft[:int(samples/2)]))
+axs[4,1].set_title('Fourier Coefficients of the demodulated functions')
+axs[5,1].scatter(range(int(samples/2)), np.abs(f1_demod_low_pass_fft[:int(samples/2)]))
+axs[5,1].scatter(range(int(samples/2)), np.abs(f2_demod_low_pass_fft[:int(samples/2)]))
+axs[5,1].set_title('Fourier Coefficients of the reconstructed functions')
+axs[5,1].set_xlabel('k')
+
+plt.tight_layout()
+plt.show()
+
+# Plot low original vs reconstructed signals
+# shift signals to align
+if True:
+    t1_lp = [t_i - (N)*f1_demod_low_pass.Ts for t_i in f1_demod_low_pass.t]
+    t2_lp = [t_i - (N)*f2_demod_low_pass.Ts for t_i in f2_demod_low_pass.t]
+    fig, axs = plt.subplots(1, 2, figsize=(10, 3))
+    axs[0].plot(f1_low_pass.t[N:samples+N], f1_low_pass.f[N:samples+N])
+    axs[0].plot(t1_lp[2*N:samples+2*N], f1_demod_low_pass.f[2*N:samples+2*N], color='darkblue')
+    axs[0].set_xlabel('t [s]')
+    axs[1].plot(f2_low_pass.t[N:samples+N], f2_low_pass.f[N:samples+N], color='tab:orange')
+    axs[1].plot(t2_lp[2*N:samples+2*N], f2_demod_low_pass.f[2*N:samples+2*N], color='red')
+    axs[1].set_xlabel('t [s]')
+    plt.tight_layout()
     plt.show()
 
-if plot:
-    # compare the original and reconstructed functions
-    plt.figure(7)
-    # shift the new signal to the left by N
-    t1_lp = [t_i - (2*N)*f1_demod_low_pass.Ts for t_i in f1_demod_low_pass.t]
-    plt.plot(f1.t, f1.f, label='Original')
-    plt.plot(t1_lp, f1_demod_low_pass.f, label='Reconstructed', color='navy')
-    plt.legend()
-    plt.title('Comparison of original and reconstructed functions')
-    plt.show()
-    plt.figure(8)
-    # shift the new signal to the left by N
-    t2_lp = [t_i - (2*N)*f2_demod_low_pass.Ts for t_i in f2_demod_low_pass.t]
-    plt.plot(f2.t, f2.f, label='Original', color='tab:orange')
-    plt.plot(t2_lp, f2_demod_low_pass.f, label='Reconstructed', color='darkred')
-    plt.legend()
-    plt.title('Comparison of original and reconstructed functions')
-    plt.show()
-
-## Compare in frequency domain
-if analyse_in_frequency_domain:
-    # Perform FFT
-    f1_fft = fft_iterative(f1.f)
-    f1_low_pass_fft = fft_iterative(f1_low_pass.f[N:256+N])
-    f1_mod_fft = fft_iterative(f1_mod.f[N:256+N])
-    f_sum_fft = fft_iterative(f_sum.f[N:256+N])
-    f1_demod_fft = fft_iterative(f1_demod.f[N:256+N])
-    f1_reconstructed_fft = fft_iterative(f1_demod_low_pass.f[2*N:256+2*N])
-    # Perform FFT
-    f2_fft = fft_iterative(f2.f)
-    f2_low_pass_fft = fft_iterative(f2_low_pass.f[N:256+N])
-    f2_mod_fft = fft_iterative(f2_mod.f[N:256+N])
-    f2_demod_fft = fft_iterative(f2_demod.f[N:256+N])
-    f2_reconstructed_fft = fft_iterative(f2_demod_low_pass.f[2*N:256+2*N])
-    # Plot FFT
-    # plt.figure(1)
-    # plt.scatter(range(256), np.abs(f1_fft[0:256]), label='Orginal')
-    # plt.scatter(range(256), np.abs(f1_low_pass_fft[0:256]), label='Low-pass filtered')
-    # plt.title('FFT of the functions')
-    # plt.legend()
-    # plt.grid()
-    # plt.show()
-    # Plot FFT
-    # plt.figure(2)
-    # plt.scatter(range(256), np.abs(f2_fft[0:256]), label='Orginal')
-    # plt.scatter(range(256), np.abs(f2_low_pass_fft[0:256]), label='Low-pass filtered')
-    # plt.title('FFT of the functions')
-    # plt.legend()
-    # plt.grid()
-    # plt.show()
-    # # Plot Modulation
-    # plt.figure(3)
-    # plt.scatter(range(256), np.abs(f1_mod_fft[0:256]), label='Modulated')  
-    # plt.scatter(range(256), np.abs(f2_mod_fft[0:256]), label='Modulated')
-    # plt.title('FFT of the modulated functions')
-    # plt.legend()
-    # plt.grid()
-    # plt.show()
-    # Create subplots
-    fig, axs = plt.subplots(3, 1, figsize=(10, 10))
-    axs[0].scatter(range(128), np.abs(f1_fft[0:128]), label='Cosine wave')  
-    axs[0].scatter(range(128), np.abs(f2_fft[0:128]), label='Sawtooth wave')
-    axs[0].set_title('FFT of the functions')
-    axs[0].legend()
-    axs[1].scatter(range(128), np.abs(f1_mod_fft[0:128]))
-    axs[1].scatter(range(128), np.abs(f2_mod_fft[0:128]))
-    axs[1].set_title('FFT of the modulated functions')
-    axs[2].scatter(range(128), np.abs(f1_reconstructed_fft[0:128]))
-    axs[2].scatter(range(128), np.abs(f2_reconstructed_fft[0:128]))
-    axs[2].set_title('FFT of the reconstructed functions')
-    plt.show()
-
-plot_as_subplots = True
-if plot_as_subplots:
-    # Plot
-    fig, axs = plt.subplots(6, 2, figsize=(10, 10))
-    axs[0,0].plot(f1.t, f1.f, label='Cosine wave')
-    axs[0,0].plot(f2.t, f2.f, label='Sawtooth wave')
-    axs[0,0].set_title('Original functions')
-    axs[0,0].legend()
-    axs[1,0].plot(f1_low_pass.t[N: -N], f1_low_pass.f[N: -N])
-    axs[1,0].plot(f2_low_pass.t[N: -N], f2_low_pass.f[N: -N])
-    axs[1,0].set_title('Low-pass filtered functions')
-    axs[2,0].plot(f1_mod.t[N: -N], f1_mod.f[N: -N])
-    axs[2,0].plot(f2_mod.t[N: -N], f2_mod.f[N: -N])
-    axs[2,0].set_title('Modulated functions')
-    axs[3,0].plot(f_sum.t[N: -N], f_sum.f[N: -N], color='tab:green')
-    axs[3,0].set_title('Sum of modulated functions')
-    axs[4,0].plot(f1_demod.t[N: -N], f1_demod.f[N: -N])
-    axs[4,0].plot(f2_demod.t[N: -N], f2_demod.f[N: -N])
-    axs[4,0].set_title('Demodulated functions')
-    axs[5,0].plot(f1_demod_low_pass.t[2*N: -2*N], f1_demod_low_pass.f[2*N: -2*N])
-    axs[5,0].plot(f2_demod_low_pass.t[2*N: -2*N], f2_demod_low_pass.f[2*N: -2*N])
-    axs[5,0].set_title('Reconstructed functions')
-    # Compare to frequency domain
-    axs[0,1].scatter(range(128), np.abs(f1_fft[0:128]), label='Cosine wave')
-    axs[0,1].scatter(range(128), np.abs(f2_fft[0:128]), label='Sawtooth wave')
-    axs[0,1].set_title('FFT of the functions')
-    axs[0,1].legend()
-    axs[1,1].scatter(range(128), np.abs(f1_low_pass_fft[0:128]))
-    axs[1,1].scatter(range(128), np.abs(f2_low_pass_fft[0:128]))
-    axs[1,1].set_title('FFT of the low-pass filtered functions')
-    axs[2,1].scatter(range(128), np.abs(f1_mod_fft[0:128]))
-    axs[2,1].scatter(range(128), np.abs(f2_mod_fft[0:128]))
-    axs[2,1].set_title('FFT of the modulated functions')
-    axs[3,1].scatter(range(128), np.abs(f_sum_fft[0:128]), color='tab:green')
-    axs[3,1].set_title('FFT of the sum of modulated functions')
-    axs[4,1].scatter(range(128), np.abs(f1_demod_fft[0:128]))
-    axs[4,1].scatter(range(128), np.abs(f2_demod_fft[0:128]))
-    axs[4,1].set_title('FFT of the demodulated functions')
-    axs[5,1].scatter(range(128), np.abs(f1_reconstructed_fft[0:128]))
-    axs[5,1].scatter(range(128), np.abs(f2_reconstructed_fft[0:128]))
-    axs[5,1].set_title('FFT of the reconstructed functions')
-    plt.show()

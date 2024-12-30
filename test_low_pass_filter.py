@@ -39,7 +39,14 @@ def test_low_pass3():
     f_without_noise = Function(n, Ts=Ts, function_handle=lambda t: np.cos(w*t))
     assert np.allclose(f_low_pass.f[2*N:-2*N], f_without_noise.f[N:-N], atol=0.8), "Test case 3 failed"
 
-if __name__ == '__main__':
-    test_low_pass1()
-    test_low_pass2()
-    test_low_pass3()
+def test_fast_convolution():
+    # Test case 4: compare the result of the low pass filter with fast and regular convolution
+    w = 2 * pi # Frequency of the cosine wave
+    Ts = 0.01 # Sampling rate
+    n = range(0, 501)
+    fcn_handle = lambda t: np.cos(w*t) # Cosine function
+    f = Function(n, Ts=Ts, function_handle=fcn_handle)
+    N = 32
+    f_low_pass_fast = low_pass_filter(f, 4*w, N)
+    f_low_pass = low_pass_filter(f, 4*w, N, use_fast_convolution=False)
+    assert np.allclose(f_low_pass_fast.f[2*N:-2*N], f_low_pass.f[2*N:-2*N], atol=1e-6), "Test case 4 failed"
