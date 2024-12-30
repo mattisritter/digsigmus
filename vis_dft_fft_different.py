@@ -85,8 +85,8 @@ def visualize_differences():
         fft_recursive_time_usage.append(fft_recursive_time)
         fft_iterative_time_usage.append(fft_iterative_time)
 
-        # Break if DFT memory exceeds both FFT methods
-        if dft_memory > fft_recursive_memory and dft_memory > fft_iterative_memory:
+        # Break if iterative FFT computing time exceeds recursive FFT 
+        if fft_iterative_time < fft_recursive_time:
             break
 
     # Plot memory usage over signal lengths

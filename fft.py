@@ -175,7 +175,7 @@ def _iterative_algorithm_v2(f, exp_factors, inverse=False):
     return f
 
 if __name__ == "__main__":
-    # Compare the cumpuational time of FFT and DFT
+    # Compare the cumpuational time of FFT recursive and iterative
     n = 2**12
     f = np.random.rand(n)
     start = time.time()
