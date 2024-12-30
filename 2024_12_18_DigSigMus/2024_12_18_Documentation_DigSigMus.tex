@@ -182,8 +182,8 @@ The script \texttt{vis\_modulation.py} provides visual insights into the modulat
 \end{figure}
 
 \section{Convolution}
-Convolution is implemented in time-domain (\texttt{/module/convolution.py})
-and as fast convolution using the \ac{FFT} (\texttt{/module/fast\_convolution.py}).
+Convolution is implemented in time-domain (\texttt{convolution.py})
+and as fast convolution using the \ac{FFT} (\texttt{fast\_convolution.py}).
 To verify the correctness of the implementations,
 a sawtooth signal is convolved with a shifted impulse signal.
 The results are the same for both implementations within a tolerance smaller than \(\pm10^{-15}\).
@@ -198,7 +198,7 @@ This is shown in Figure \ref{fig:convolution}.
 
 \section{Low-Pass Filter}
 
-The filter is implemented in \texttt{/module/low\_pass\_filter.py}.
+The filter is implemented in \texttt{low\_pass\_filter.py}.
 By convolving the input signal with the filter function of length \(N\),
 the signal is low-pass filtered.
 
