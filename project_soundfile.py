@@ -1,6 +1,17 @@
+# ======================================
+# Digital Signal Processing
+# Jakob Kurz (210262)
+# Mattis Tom Ritter (210265)
+# Heilbronn University of Applied Sciences
+# (C) Jakob Kurz, Mattis Tom Ritter 2024
+# ======================================
 from math import pi, ceil
 import numpy as np
 import matplotlib.pyplot as plt
+
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), 'module/'))
 from function import Function
 from sampling_rate_conversion import convert_sampling_rate
 from modulation import modulate, demodulate, quadrature_modulate, quadrature_demodulate
