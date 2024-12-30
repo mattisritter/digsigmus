@@ -150,7 +150,8 @@ Figure \ref{fig:time_memory_comparison} shows the execution time and memory usag
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.9\textwidth]{figures/dft_fftr_ffti.pdf}
+	\includegraphics[width=0.45\textwidth]{figures/computional_time.pdf}
+	\includegraphics[width=0.45\textwidth]{figures/memory_usage.pdf}
 	\caption{Computational time for fixed signal length (left). Memory usage comparison (right).}
 	\label{fig:time_memory_comparison}
 \end{figure}
@@ -165,9 +166,8 @@ Figure \ref{fig:scaling_comparison} examines execution time and memory usage as 
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.45\textwidth]{2023_11_29_Bilder_Dokumentation/Execution_Time_vs_Signal_Length.png}
-	\hspace{0.05\textwidth}
-	\includegraphics[width=0.45\textwidth]{2023_11_29_Bilder_Dokumentation/Memory_Usage_vs_Signal_length.png}
+	\includegraphics[width=0.45\textwidth]{figures/computional_time_cmp.pdf}
+	\includegraphics[width=0.45\textwidth]{figures/memory_usage_cmp.pdf}
 	\caption{Execution time vs. signal length (left). Memory usage vs. signal length (right).}
 	\label{fig:scaling_comparison}
 \end{figure}
@@ -213,7 +213,8 @@ Both visualizations confirm the correctness and reliability of the implementatio
 
 \section{Convolution}
 
-Convolution is implemented in time-domain and as fast convolution using the \ac{FFT}.
+Convolution is implemented in time-domain (\texttt{/module/convolution.py})
+and as fast convolution using the \ac{FFT} (\texttt{/module/fast\_convolution.py}).
 To verify the correctness of the implementations,
 a sawtooth signal is convolved with a shifted impulse signal.
 The results are the same for both implementations within a tolerance smaller than \(\pm10^{-15}\).
@@ -228,17 +229,20 @@ This is shown in Figure \ref{fig:convolution}.
 
 \section{Low-Pass Filter}
 
-The filter is implemented by convolving the input signal with the \(sinc\) function.
-By filtering an impulse signal, the filter can be obtained.
-Figure \ref{fig:low_pass_filter} (left) shows the filter with and without a Hamming window.
+The filter is implemented in \texttt{/module/low\_pass\_filter.py}.
+By convolving the input signal with the filter function of length \(N\),
+the signal is low-pass filtered.
 
 \begin{figure}[h!]
 	\centering
-	\includegraphics[width=0.4\textwidth]{figures/impulse_response.pdf}
-	\includegraphics[width=0.4\textwidth]{figures/passband.pdf}
+	\includegraphics[width=0.45\textwidth]{figures/impulse_response.pdf}
+	\includegraphics[width=0.45\textwidth]{figures/passband.pdf}
 	\caption{Impulse response of the low-pass filter with N=20 (left). Amplitude of the low-passed signal with different filter lengths (right).}
 	\label{fig:low_pass_filter}
 \end{figure}
+As filter function, a \(sinc\) function with applied Hamming windowing is used.
+Figure \ref{fig:low_pass_filter} (left) shows the impulse response with and without a Hamming window.
+It can be observed that the Hamming window reduces the ripples at the beginning and end of the impulse response.
 
 The frequency response of the low-pass filter is determined by filtering cosine waves with increasing frequencies
 and calculating the highest amplitude of the output signal.
@@ -272,9 +276,12 @@ On the sender side, the signals are low-pass filtered, modulated and added.
 The sum of both modulated signals is then transmitted to the receiver,
 where the signal is demodulated and low-pass filtered again.
 
-For testing the overall system, the following signals are used.
-The first signal is a sum of cosine waves (Equation 1)
-and the second signal is a sawtooth wave (Equation 2).
+\section{Testing with simple signals}
+
+The file \texttt{project.py} contains the implementation of the overall system.
+For testing, two simple signals are used.
+The first signal is a sum of cosine waves with different frequencies and phases (Equation 2.1)
+and the second signal is a sawtooth wave (Equation 2.2).
 \begin{equation}
 	f_1(t) = 3 + cos(t+1) + 2cos(3t+2) - 5cos(4t-1) + cos(13t)
 \end{equation}
@@ -307,6 +314,23 @@ This is shown in Figure \ref{fig:overlap},
 where the signals contain noise of the other signal.
 Most significant is a noise in the sawtooth signal with a frequency of 7 \(rad/s\).
 
+\section{Testing with sound files}
+
+The overall system is also tested with sound files (\texttt{project\_soundfile.py}).
+The first sound file is a Jodler and the second a squeaking violin.
+\begin{itemize}
+	\item \texttt{soundfiles/Jodler.wav}
+	\item \texttt{soundfiles/Violine.wav}
+\end{itemize}
+The sampling rate is \(f_s=\) 44100 \(Hz\), respectively \(w_s\approx\) 277088 \(rad/s\).
+The signals are low-pass filtered with a cut-off frequency \(\omega_c=\) 20000 \(rad/s\).
+The modulation frequencies are \(\omega_{mod_1}=\) 25000 \(rad/s\) and \(\omega_{mod_2}=\) 70000 \(rad/s\).
+As the signals are well separated in the frequency domain
+and the sampling frequency is sufficient,
+the reconstruction is successful.
+The soundfiles after each operation are saved in the \texttt{soundfiles} directory,
+in order to listen to the (intermediate) results.
+Figure \ref{fig:soundfiles} depicts the overall system with sound files.
 
 \appendix
 
@@ -335,6 +359,13 @@ Most significant is a noise in the sawtooth signal with a frequency of 7 \(rad/s
 	\includegraphics[width=0.9\textwidth]{figures/overlapping_cmp.pdf}
 	\caption{Overall sytsem with overlapping frequency bands (top). Reconstructed vs. low-pass filtered signals (bottom).}
 	\label{fig:overlap}
+\end{figure}
+
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figures/overall_soundfile.pdf}
+	\caption{Overall system with sound files.}
+	\label{fig:soundfiles}
 \end{figure}
 
 \end{document}
