@@ -92,10 +92,6 @@ def visualize_differences():
         fft_recursive_time_usage.append(fft_recursive_time)
         fft_iterative_time_usage.append(fft_iterative_time)
 
-        # Break if DFT memory exceeds both FFT methods
-        if dft_memory > fft_recursive_memory and dft_memory > fft_iterative_memory:
-            break
-
     # Plot memory usage over signal lengths
     plt.figure(figsize=(12, 6))
     plt.plot(durations[:len(dft_memory_usage)], np.array(dft_memory_usage) / 1024, label='DFT', marker='o', linestyle='-', color='blue')

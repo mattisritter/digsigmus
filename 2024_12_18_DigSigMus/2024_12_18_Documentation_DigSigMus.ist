@@ -1,5 +1,5 @@
 % makeindex style file created by the glossaries package
-% for document '2024_12_18_Documentation_DigSigMus' on 2024-12-29
+% for document '2024_12_18_Documentation_DigSigMus' on 2024-12-30
 actual '?'
 encap '|'
 level '!'
@@ -27,3 +27,5 @@ heading_suffix "\}\\relax \\glsresetentrylist "
 symhead_positive "glssymbols"
 numhead_positive "glsnumbers"
 page_compositor "."
+suffix_2p ""
+suffix_3p ""
