@@ -31,6 +31,9 @@ plt.xlabel('n')
 plt.tight_layout()
 plt.show()
 
+diff = np.abs([h.f[i] - h_fast.f[i] for i in range(samples)])
+print(max(diff))
+
 # Compare the time taken by the two convolution methods
 length_f = 2**14
 length_g = 256
