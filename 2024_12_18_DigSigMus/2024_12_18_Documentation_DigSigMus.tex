@@ -112,11 +112,8 @@
 The \ac{DFT} and \ac{FFT} implementations are provided in \texttt{dft.py} and \texttt{fft.py}, respectively:
 \begin{itemize}
 	\item \textbf{\ac{DFT}}: Computes the Fourier Transform with \(O(N^2)\) complexity using a direct summation formula.
-	\item \textbf{\ac{FFT}}:
-	      \begin{itemize}
-		      \item \textbf{Recursive FFT}: Implements a divide-and-conquer approach, reducing complexity to \(O(N \log N)\).
-		      \item \textbf{Iterative FFT}: Uses iterative butterfly operations for further optimization, avoiding recursion overhead.
-	      \end{itemize}
+	\item \textbf{Recursive FFT}: Implements a divide-and-conquer approach, reducing complexity to \(O(N \log N)\).
+	\item \textbf{Iterative FFT}: Uses iterative butterfly operations for further optimization, avoiding recursion overhead.
 \end{itemize}
 
 \subsection{Verification of Similarities}
@@ -128,7 +125,7 @@ The Python script \texttt{test\_dft\_fft.py} validates the numerical equivalence
 \end{itemize}
 \noindent The visualization script \texttt{vis\_dft\_fft\_simmiliar.py} further illustrates the similarities:
 \begin{itemize}
-	\item \textbf{Frequency Domain Comparison (Fig. \ref{fig:frequency_domain_comparison} Left)}: All methods accurately identify the signal's frequency components.
+	\item \textbf{Frequency Domain Comparison (Fig. \ref{fig:frequency_domain_comparison} Left)}: All methods accurately identify the signal's frequency components, and only half of the spectrum is shown due to its symmetry for real-valued signals.
 	\item \textbf{Time Domain Reconstruction (Fig. \ref{fig:frequency_domain_comparison} Right)}: All methods reconstruct the original signal with minimal deviations.
 \end{itemize}
 
@@ -147,8 +144,8 @@ To highlight differences, the script \texttt{vis\_dft\_fft\_different.py} visual
 Figure \ref{fig:time_memory_comparison} shows the execution time and memory usage for a fixed signal length:
 \begin{itemize}
 	\item The \ac{DFT} requires significantly more time due to its \(O(N^2)\) complexity, while both \ac{FFT} implementations achieve \(O(N \log N)\).
-	\item The iterative \ac{FFT} is slightly faster than the recursive \ac{FFT}.
-	\item Memory usage for the \ac{FFT} is lower than the \ac{DFT}, with the iterative \ac{FFT} requiring the least memory.
+	\item The recursive \ac{FFT} is slightly faster than the iterative \ac{FFT}.
+	\item Memory usage for the iterative \ac{FFT} is at the lowest, while recursive \ac{FFT} requires the most.
 \end{itemize}
 
 \begin{figure}[h!]
@@ -163,7 +160,7 @@ Figure \ref{fig:scaling_comparison} examines execution time and memory usage as 
 \begin{itemize}
 	\item Execution time for the \ac{DFT} grows quadratically, while the \ac{FFT} scales logarithmically.
 	\item Memory usage for the \ac{DFT} increases linearly, whereas both \ac{FFT} methods maintain near-constant memory requirements.
-	\item The iterative \ac{FFT} consistently outperforms the recursive \ac{FFT} in both time and memory usage.
+	\item The recursive \ac{FFT} outperforms the iterative \ac{FFT} for shorter and larger signals.
 \end{itemize}
 
 \begin{figure}[h!]
