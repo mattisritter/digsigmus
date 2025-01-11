@@ -38,7 +38,7 @@ f1_low_pass = low_pass_filter(f1, wc, N)
 f2_low_pass = low_pass_filter(f2, wc, N)
 # Modulate the functions
 w_mod1 = 25000 # Modulation frequency
-w_mod2 = 70000 # Modulation frequency
+w_mod2 = 47000 # Modulation frequency
 f1_mod = modulate(f1_low_pass, w_mod1)
 f2_mod = modulate(f2_low_pass, w_mod2)
 # Add the modulated functions
@@ -117,7 +117,7 @@ axs[2,1].axvline(x=mod1, color='k', linestyle='--') # Add vertical line at modul
 axs[2,1].text(7/32, 0.7, '$\omega_{mod_1}$', transform=axs[2,1].transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
 axs[2,1].fill_between([mod1-cut_off, mod1+cut_off], 0, max(np.abs(f1_mod_fft[:int(relevant_samples/2)])), color='tab:blue', alpha=0.3) # Add a sqaure showing the frequency band
 axs[2,1].axvline(x=mod2, color='k', linestyle='--') # Add vertical line at modulation frequency
-axs[2,1].text(16.2/32, 0.6, '$\omega_{mod_2}$', transform=axs[2,1].transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
+axs[2,1].text(12.2/32, 0.6, '$\omega_{mod_2}$', transform=axs[2,1].transAxes, fontsize=10, verticalalignment='top', horizontalalignment='left')
 axs[2,1].fill_between([mod2-cut_off, mod2+cut_off], 0, max(np.abs(f2_mod_fft[:int(relevant_samples/2)])), color='tab:orange', alpha=0.3) # Add a sqaure showing the frequency band
 axs[2,1].set_title('Fourier Coefficients of the modulated functions')
 axs[2,1].set_ylim(0, max_coeff)
@@ -139,7 +139,7 @@ plt.tight_layout()
 plt.show()
 
 # Plot low original vs reconstructed signals
-if True:
+if False:
     t1_lp = [t_i - (N)*f1_demod_low_pass.Ts for t_i in f1_demod_low_pass.t]
     t2_lp = [t_i - (N)*f2_demod_low_pass.Ts for t_i in f2_demod_low_pass.t]
     fig, axs = plt.subplots(1, 2, figsize=(10, 3))
@@ -155,15 +155,15 @@ if True:
 # Save and play the soundfiles
 if True:
     # Save the soundfiles
-    sf.write("soundfiles/Jodler_low_pass.wav", f1_low_pass.f, fs1)
-    sf.write("soundfiles/Violine_low_pass.wav", f2_low_pass.f, fs2)
-    sf.write("soundfiles/Jodler_mod.wav", f1_mod.f, fs1)
-    sf.write("soundfiles/Violine_mod.wav", f2_mod.f, fs2)
-    sf.write("soundfiles/Sum.wav", f_sum.f, fs1)
-    sf.write("soundfiles/Jodler_demod.wav", f1_demod.f, fs1)
-    sf.write("soundfiles/Violine_demod.wav", f2_demod.f, fs2)
-    sf.write("soundfiles/Jodler_demod_low_pass.wav", f1_demod_low_pass.f, fs1)
-    sf.write("soundfiles/Violine_demod_low_pass.wav", f2_demod_low_pass.f, fs2)
+    #sf.write("soundfiles/Jodler_low_pass.wav", f1_low_pass.f, fs1)
+    #sf.write("soundfiles/Violine_low_pass.wav", f2_low_pass.f, fs2)
+    sf.write("soundfiles/Jodler_mod_overlap.wav", f1_mod.f, fs1)
+    sf.write("soundfiles/Violine_mod_overlap.wav", f2_mod.f, fs2)
+    sf.write("soundfiles/Sum_overlap.wav", f_sum.f, fs1)
+    sf.write("soundfiles/Jodler_demod_overlap.wav", f1_demod.f, fs1)
+    sf.write("soundfiles/Violine_demod_overlap.wav", f2_demod.f, fs2)
+    sf.write("soundfiles/Jodler_demod_low_pass_overlap.wav", f1_demod_low_pass.f, fs1)
+    sf.write("soundfiles/Violine_demod_low_pass_overlap.wav", f2_demod_low_pass.f, fs2)
 
     # Play the soundfiles
     # Jodler
@@ -172,11 +172,11 @@ if True:
     # ps.playsound("soundfiles/Jodler_mod.wav")
     # ps.playsound("soundfiles/Sum.wav")
     # ps.playsound("soundfiles/Jodler_demod.wav")
-    ps.playsound("soundfiles/Jodler_demod_low_pass.wav")
+    ps.playsound("soundfiles/Jodler_demod_low_pass_overlap.wav")
     # Violine
     ps.playsound("soundfiles/Violine.wav")
     ps.playsound("soundfiles/Violine_low_pass.wav")
     # ps.playsound("soundfiles/Violine_mod.wav")
     # ps.playsound("soundfiles/Sum.wav")
     # ps.playsound("soundfiles/Violine_demod.wav")
-    ps.playsound("soundfiles/Violine_demod_low_pass.wav")
+    ps.playsound("soundfiles/Violine_demod_low_pass_overlap.wav")
