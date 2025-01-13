@@ -11,11 +11,10 @@ def generate_signal(frequency, duration, sampling_rate):
 
 def ifft_from_fft(fft_result):
     """
-    Perform the Inverse FFT (IFFT) using the FFT results.
-    This assumes normalization by the length of the input signal.
+    Perform the Inverse FFT (IFFT) using the implemented FFT results.
     """
     n = len(fft_result)
-    return np.conj(fft_recursive(np.conj(fft_result))) / n
+    return fft_recursive(fft_result, inverse=True)
 
 def test_dft_fft_commonalities():
     # Signal parameters
